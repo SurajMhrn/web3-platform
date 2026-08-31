@@ -1,0 +1,22 @@
+{
+  "name": "web3-contracts",
+  "version": "1.0.0",
+  "description": "Smart Contracts Workspace for Web3 Platform",
+  "scripts": {
+    "compile": "hardhat compile",
+    "test": "hardhat test",
+    "deploy": "hardhat run scripts/deploy.ts"
+  },
+  "devDependencies": {
+    "@nomicfoundation/hardhat-toolbox": "^5.0.0",
+    "@types/node": "^20.8.9",
+    "hardhat": "^2.22.4",
+    "ts-node": "^10.9.1",
+    "typescript": "^5.2.2"
+  },
+  "dependencies": {
+    "@openzeppelin/contracts": "^5.6.1",
+    "dotenv": "^16.3.1",
+    "ethers": "^6.8.0"
+  }
+}

@@ -1,0 +1,78 @@
+internship
+
+Hi Suraj,
+
+I hope you're doing well.
+
+You have been assigned to work on the Web3 project. This is a great opportunity to gain hands-on experience with blockchain development.
+
+The initial features include:
+
+* User Registration & Login
+* Wallet Connect
+* Single-Chain Support
+* Smart Contract Integration
+* Token Creation & Management
+* Token Transfer
+* Transaction History
+* Dashboard
+* Admin Dashboard
+* Basic Analytics
+* Role-Based Access Control (RBAC)
+* Notification System
+
+Please review the requirements, prepare an effort estimate, and start development according to the plan.
+
+While working on the project, please make sure that:
+
+* The code is clean, secure, well documented, and properly tested.
+* The architecture is flexible and scalable to support future enhancements.
+* If you face any issues or have questions, please let me know.
+
+I look forward to seeing your progress.
+
+
+The project timeline is 90 days, with the first 45 days dedicated to the Web3 platform and the remaining 45 days focused on the Real Estate Tokenization MVP.
+
+Please follow the weekly milestones below.
+
+Phase 1 – Web3 Platform (Weeks 1–7)
+
+Week 1: Project setup, architecture, environment setup, .
+Week 2:  User Registration & Login and  Wallet Connect
+Week 3: RBAC, and Authentication.
+Week 4: Single-Chain Support, Smart Contract Integration, and Hardhat setup.
+Week 5: Token Creation & Management.
+Week 6: Token Transfer, Transaction History, Dashboard, Admin Dashboard, Basic Analytics, and Notification System.
+Week 7: End-to-end integration, testing, security improvements, bug fixes, documentation, and Phase 1 demonstration.
+
+Phase 2 – Real Estate Tokenization MVP (Weeks 8–13)
+
+Week 8:  Real Estate Asset Management
+Week 9:  Property Tokenization and Smart Contract enhancements.
+Week 10:  Investment & Fractional Ownership and Investor Dashboard
+Week 11:  Transaction Tracking, Reporting and analytics
+Week 12: Performance optimizations, end-to-end testing and documentation.
+Week 13: Deployment preparation, final MVP demonstration and project handover.
+
+Technology Stack
+
+You may use the following technology stack as a reference, or choose equivalent technologies based on your experience and what you believe is most suitable for the project:
+
+Frontend:  React.js + Vite + TypeScript 
+Backend: Express.js (Node.js)
+Blockchain: Ethereum (Single Chain)
+Blockchain Library: Ethers.js
+Smart Contracts: Solidity
+Wallet Integration: MetaMask + WalletConnect
+Development Framework: Hardhat (or Foundry for advanced smart contract development)
+Database: PostgreSQL (or MySQL if required)
+Authentication: JWT + Wallet Authentication
+Version Control: Git & Bitbucket
+API Documentation: Swagger/OpenAPI  
+
+Please provide a weekly progress update with a working demonstration at the end of each week and phase so we can review the implementation and provide timely feedback.
+
+As discussed earlier, please ensure the code is clean, secure, well documented, properly tested, and follows a scalable architecture.
+
+Let me know if you have any questions.

@@ -17,10 +17,10 @@ interface MiniBarChartProps {
  * available space, and `preserveAspectRatio="none"` lets CSS `width: 100%`
  * handle responsiveness.
  */
-export function MiniBarChart({ data, color = '#818cf8', height = 120, emptyMessage = 'No activity yet.' }: MiniBarChartProps) {
+export function MiniBarChart({ data, color = '#d41317', height = 120, emptyMessage = 'No activity yet.' }: MiniBarChartProps) {
   if (data.length === 0) {
     return (
-      <p style={{ color: '#64748b', fontSize: '0.85rem', textAlign: 'center', padding: '1.5rem 0' }}>
+      <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem', textAlign: 'center', padding: '1.5rem 0' }}>
         {emptyMessage}
       </p>
     );
@@ -57,7 +57,7 @@ export function MiniBarChart({ data, color = '#818cf8', height = 120, emptyMessa
           );
         })}
       </svg>
-      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.65rem', color: '#64748b', marginTop: '0.35rem' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.65rem', color: 'var(--text-muted)', marginTop: '0.35rem' }}>
         <span>{data[0].label}</span>
         <span>{data[data.length - 1].label}</span>
       </div>

@@ -292,7 +292,7 @@ export function TokenManagementPage() {
                       <td><span className="admin-wallet">{t.symbol}</span></td>
                       <td>{Number(t.initial_supply).toLocaleString()}</td>
                       <td><code className="tx-hash">{t.contract_address.slice(0, 10)}...{t.contract_address.slice(-6)}</code></td>
-                      <td style={{ fontSize: '0.8rem', color: '#64748b' }}>{new Date(t.created_at).toLocaleDateString()}</td>
+                      <td style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>{new Date(t.created_at).toLocaleDateString()}</td>
                     </tr>
                   ))}
                 </tbody>

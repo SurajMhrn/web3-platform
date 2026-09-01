@@ -215,7 +215,7 @@ export function AdminDashboardPage() {
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '1.5rem' }}>
               <div className="admin-stat-card" style={{ display: 'block', padding: '1.25rem' }}>
                 <p className="admin-stat-label" style={{ marginBottom: '0.75rem' }}>New Signups</p>
-                <MiniBarChart data={buildDaySeries(analytics.signups, analytics.days)} color="#818cf8" />
+                <MiniBarChart data={buildDaySeries(analytics.signups, analytics.days)} color="#d41317" />
               </div>
               <div className="admin-stat-card" style={{ display: 'block', padding: '1.25rem' }}>
                 <p className="admin-stat-label" style={{ marginBottom: '0.75rem' }}>Tokens Created</p>
@@ -228,7 +228,7 @@ export function AdminDashboardPage() {
               <div className="admin-stat-card" style={{ display: 'block', padding: '1.25rem' }}>
                 <p className="admin-stat-label" style={{ marginBottom: '0.75rem' }}>Top Token Creators</p>
                 {analytics.topCreators.length === 0 ? (
-                  <p style={{ color: '#64748b', fontSize: '0.85rem' }}>No tokens created yet.</p>
+                  <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>No tokens created yet.</p>
                 ) : (
                   <ol style={{ margin: 0, paddingLeft: '1.2rem', fontSize: '0.88rem' }}>
                     {analytics.topCreators.map(c => (

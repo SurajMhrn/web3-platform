@@ -9,19 +9,21 @@ import { AdminDashboardPage } from './pages/AdminDashboardPage';
 import { TokenManagementPage } from './pages/TokenManagementPage';
 import { TransactionHistoryPage } from './pages/TransactionHistoryPage';
 import { ProtectedRoute, AdminRoute } from './components/ProtectedRoute';
+import { ThemeToggle } from './components/ThemeToggle';
 import './index.css';
 import './App.css';
 
 function App() {
   return (
     <>
-      <Toaster position="top-center" toastOptions={{ 
+      <Toaster position="top-center" toastOptions={{
         style: {
-          background: '#1e293b',
-          color: '#fff',
-          border: '1px solid rgba(255,255,255,0.1)'
+          background: 'var(--glass-bg)',
+          color: 'var(--text-color)',
+          border: '1px solid var(--glass-border)'
         }
       }} />
+      <ThemeToggle />
       <Router>
         <Routes>
           {/* Public routes */}

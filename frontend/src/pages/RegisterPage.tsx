@@ -76,7 +76,7 @@ export function RegisterPage() {
         </form>
 
         <div style={{ textAlign: 'center', marginTop: '1.5rem' }}>
-          <span style={{ color: '#94a3b8' }}>Already have an account? </span>
+          <span style={{ color: 'var(--text-muted)' }}>Already have an account? </span>
           <Link to="/login" className="link-text">Log in</Link>
         </div>
       </div>

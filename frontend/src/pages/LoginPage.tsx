@@ -77,7 +77,7 @@ export function LoginPage() {
         </form>
 
         <div style={{ textAlign: 'center', marginTop: '1.5rem' }}>
-          <span style={{ color: '#94a3b8' }}>Don't have an account? </span>
+          <span style={{ color: 'var(--text-muted)' }}>Don't have an account? </span>
           <Link to="/register" className="link-text">Register</Link>
         </div>
       </div>

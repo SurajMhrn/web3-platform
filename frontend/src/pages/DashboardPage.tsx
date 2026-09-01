@@ -206,7 +206,7 @@ export function DashboardPage() {
               </h2>
               <span className={roleInfo.className}>{roleInfo.label}</span>
             </div>
-            <p style={{ color: '#cbd5e1' }}>{user.bio || 'No bio provided.'}</p>
+            <p style={{ color: 'var(--text-muted)' }}>{user.bio || 'No bio provided.'}</p>
           </div>
           <NotificationBell />
         </div>
@@ -317,12 +317,12 @@ export function DashboardPage() {
           <h3 style={{ marginBottom: '1rem' }}>Web3 Identity</h3>
 
           {user.wallet_address ? (
-            <div style={{ padding: '1rem', background: 'rgba(99, 102, 241, 0.1)', borderRadius: '8px', border: '1px solid rgba(99, 102, 241, 0.3)' }}>
-              <p style={{ color: '#94a3b8', marginBottom: '0.5rem' }}>Linked Wallet Address</p>
-              <code style={{ fontSize: '1.1rem', color: '#818cf8' }}>
+            <div style={{ padding: '1rem', background: 'rgba(212, 19, 23, 0.1)', borderRadius: '8px', border: '1px solid rgba(212, 19, 23, 0.3)' }}>
+              <p style={{ color: 'var(--text-muted)', marginBottom: '0.5rem' }}>Linked Wallet Address</p>
+              <code style={{ fontSize: '1.1rem', color: 'var(--primary-text)' }}>
                 {user.wallet_address.substring(0, 6)}...{user.wallet_address.substring(user.wallet_address.length - 4)}
               </code>
-              <p style={{ color: '#94a3b8', fontSize: '0.85rem', margin: '0.75rem 0 0' }}>
+              <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem', margin: '0.75rem 0 0' }}>
                 To link a different wallet, disconnect this one first, then switch accounts in your wallet extension before linking again.
               </p>
               <button
@@ -342,7 +342,7 @@ export function DashboardPage() {
             </div>
           ) : (
             <div>
-              <p style={{ color: '#94a3b8', marginBottom: '1rem' }}>You haven't linked a Web3 wallet yet.</p>
+              <p style={{ color: 'var(--text-muted)', marginBottom: '1rem' }}>You haven't linked a Web3 wallet yet.</p>
               {!isConnected ? (
                 <div className="wallet-btn-container">
                   <appkit-button />

@@ -88,12 +88,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          background: 'linear-gradient(135deg, #0f0c29, #302b63, #24243e)',
+          background: 'radial-gradient(circle at top right, var(--bg-gradient-1), var(--bg-gradient-2))',
           flexDirection: 'column',
           gap: '1rem',
         }}>
           <div className="spinner" style={{ width: '40px', height: '40px', borderWidth: '3px' }} />
-          <p style={{ color: '#94a3b8', fontFamily: 'sans-serif' }}>Loading...</p>
+          <p style={{ color: 'var(--text-muted)', fontFamily: 'sans-serif' }}>Loading...</p>
         </div>
       ) : children}
     </AuthContext.Provider>

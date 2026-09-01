@@ -13,15 +13,7 @@ export function WelcomePage() {
           <button className="btn primary-btn" onClick={() => navigate('/login')}>
             Login
           </button>
-          <button className="btn secondary-btn" onClick={() => navigate('/register')} style={{
-            background: 'rgba(255, 255, 255, 0.1)',
-            border: '1px solid rgba(255, 255, 255, 0.2)',
-            padding: '12px 24px',
-            borderRadius: '8px',
-            color: 'white',
-            cursor: 'pointer',
-            transition: 'all 0.3s ease'
-          }}>
+          <button className="btn secondary-btn" onClick={() => navigate('/register')}>
             Registration
           </button>
         </div>

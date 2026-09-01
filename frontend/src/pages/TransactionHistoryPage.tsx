@@ -71,7 +71,7 @@ export function TransactionHistoryPage() {
             <p>Loading transactions...</p>
           </div>
         ) : transactions.length === 0 ? (
-          <div style={{ textAlign: 'center', padding: '3rem', color: '#64748b' }}>
+          <div style={{ textAlign: 'center', padding: '3rem', color: 'var(--text-muted)' }}>
             <p style={{ fontSize: '3rem', marginBottom: '1rem' }}>📭</p>
             <p>You have no transactions yet.</p>
           </div>
@@ -93,7 +93,7 @@ export function TransactionHistoryPage() {
                   return (
                     <tr key={tx.id}>
                       <td>
-                        <span style={{ textTransform: 'capitalize', color: '#cbd5e1' }}>
+                        <span style={{ textTransform: 'capitalize', color: 'var(--text-muted)' }}>
                           {tx.type.replace('_', ' ')}
                         </span>
                       </td>
@@ -108,7 +108,7 @@ export function TransactionHistoryPage() {
                           <code className="tx-hash">{tx.tx_hash.slice(0, 8)}...{tx.tx_hash.slice(-6)}</code>
                         )}
                       </td>
-                      <td style={{ fontSize: '0.8rem', color: '#64748b' }}>
+                      <td style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
                         {new Date(tx.created_at).toLocaleString()}
                       </td>
                     </tr>

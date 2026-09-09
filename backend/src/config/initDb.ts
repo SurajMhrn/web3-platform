@@ -1,7 +1,14 @@
-import pool from './db';
+import pool, { isPostgres } from './db';
 import bcrypt from 'bcrypt';
 import crypto from 'crypto';
 import { env } from './env';
+
+/**
+ * SQLite accepts any column type name; Postgres does not, and has no DATETIME.
+ * Only the type words differ between the two schemas — the columns, keys and
+ * constraints below are identical.
+ */
+const TIMESTAMP = isPostgres ? 'TIMESTAMPTZ' : 'DATETIME';
 
 export const initDb = async () => {
   try {
@@ -18,8 +25,8 @@ export const initDb = async () => {
         nonce TEXT,
         role TEXT NOT NULL DEFAULT 'user',
         refresh_token TEXT,
-        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-        updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        created_at ${TIMESTAMP} DEFAULT CURRENT_TIMESTAMP,
+        updated_at ${TIMESTAMP} DEFAULT CURRENT_TIMESTAMP
       );
     `);
 
@@ -50,7 +57,7 @@ export const initDb = async () => {
         contract_address TEXT NOT NULL,
         tx_hash TEXT NOT NULL,
         chain_id TEXT NOT NULL DEFAULT '31337',
-        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        created_at ${TIMESTAMP} DEFAULT CURRENT_TIMESTAMP,
         FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
       );
     `);
@@ -67,8 +74,8 @@ export const initDb = async () => {
         chain_id TEXT NOT NULL DEFAULT '31337',
         description TEXT NOT NULL,
         metadata TEXT,
-        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-        updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        created_at ${TIMESTAMP} DEFAULT CURRENT_TIMESTAMP,
+        updated_at ${TIMESTAMP} DEFAULT CURRENT_TIMESTAMP,
         FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
       );
     `);
@@ -84,7 +91,7 @@ export const initDb = async () => {
         message TEXT NOT NULL,
         is_read INTEGER NOT NULL DEFAULT 0,
         link TEXT,
-        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        created_at ${TIMESTAMP} DEFAULT CURRENT_TIMESTAMP,
         FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
       );
     `);
@@ -98,7 +105,9 @@ export const initDb = async () => {
       const adminPassword = env.adminPassword || crypto.randomBytes(12).toString('base64url');
       const hashedPassword = await bcrypt.hash(adminPassword, 10);
       await pool.query(
-        `INSERT OR IGNORE INTO users (id, email, password, username, role) VALUES (?, ?, ?, ?, ?)`,
+        isPostgres
+          ? `INSERT INTO users (id, email, password, username, role) VALUES (?, ?, ?, ?, ?) ON CONFLICT DO NOTHING`
+          : `INSERT OR IGNORE INTO users (id, email, password, username, role) VALUES (?, ?, ?, ?, ?)`,
         [id, env.adminEmail, hashedPassword, 'Admin', 'admin']
       );
 

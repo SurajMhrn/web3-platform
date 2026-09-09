@@ -63,7 +63,7 @@ export const getTopTokenCreators = async (limit = 5): Promise<TopTokenCreator[]>
     `SELECT tokens.user_id AS user_id, users.email AS email, users.username AS username, COUNT(*) AS token_count
      FROM tokens
      JOIN users ON users.id = tokens.user_id
-     GROUP BY tokens.user_id
+     GROUP BY tokens.user_id, users.email, users.username
      ORDER BY token_count DESC
      LIMIT ?`,
     [limit]

@@ -7,6 +7,7 @@
     "start": "node -r dotenv/config dist/index.js",
     "dev": "ts-node-dev --respawn --transpile-only -r dotenv/config src/index.ts",
     "build": "tsc",
+    "migrate:pg": "ts-node-dev --transpile-only --no-notify scripts/migrate-sqlite-to-postgres.ts",
     "test": "jest --runInBand"
   },
   "_comment": "TypeScript and the @types it needs sit in dependencies, not devDependencies, because the deploy host installs with NODE_ENV=production — which makes npm omit devDependencies, leaving `npm run build` with no compiler. Test-only tooling stays in devDependencies.",

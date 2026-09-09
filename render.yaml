@@ -11,7 +11,10 @@ services:
     runtime: node
     plan: free
     rootDir: backend
-    buildCommand: npm install && npm run build
+    # --include=dev is required: NODE_ENV=production (below) makes npm omit
+    # devDependencies, and TypeScript lives there — without it the install
+    # succeeds and `npm run build` then dies with "tsc: not found".
+    buildCommand: npm install --include=dev && npm run build
     startCommand: npm start
     healthCheckPath: /api/health
     envVars:

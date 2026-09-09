@@ -1,0 +1,31 @@
+# Render Blueprint for the backend API (free tier).
+# Import this from the Render dashboard: New → Blueprint → pick this repo.
+#
+# Note on the free plan: there is no persistent disk, so backend/web3_db.sqlite
+# is recreated empty whenever the service redeploys or wakes from sleep.
+# Registered accounts and history do not survive that. Moving to a hosted
+# Postgres is the fix when this needs to outlive a restart.
+services:
+  - type: web
+    name: web3-platform-api
+    runtime: node
+    plan: free
+    rootDir: backend
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      # Generated once by Render, never shown in this file or in git.
+      - key: JWT_SECRET
+        generateValue: true
+      - key: REFRESH_SECRET
+        generateValue: true
+      # Set these in the Render dashboard after the frontend has a URL.
+      - key: FRONTEND_URL
+        sync: false
+      - key: ADMIN_EMAIL
+        sync: false
+      - key: ADMIN_PASSWORD
+        sync: false

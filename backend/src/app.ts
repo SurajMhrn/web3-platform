@@ -16,6 +16,14 @@ import { apiLimiter } from './middleware/rateLimit.middleware';
 
 const app = express();
 
+// In production this runs behind the host's reverse proxy, which terminates
+// TLS. Without this, Express sees the hop as plain HTTP and refuses to set
+// `secure` cookies, and express-rate-limit buckets every visitor under the
+// proxy's single IP. '1' trusts exactly one hop — the platform's proxy.
+if (env.isProduction) {
+  app.set('trust proxy', 1);
+}
+
 // CSP is disabled: Swagger UI (mounted below, on this same app) needs
 // inline styles/scripts to render, and this is a JSON API otherwise — every
 // other helmet protection (frameguard, noSniff, referrer-policy, etc.)

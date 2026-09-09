@@ -34,11 +34,20 @@ const signAccessToken = (payload: JwtPayload) =>
 const signRefreshToken = (payload: JwtPayload) =>
   jwt.sign(payload, env.refreshSecret, { expiresIn: REFRESH_TOKEN_EXPIRY });
 
-/** Shared flags for both auth cookies — kept identical between set and clear so browsers actually drop them on logout. */
+/**
+ * Shared flags for both auth cookies — kept identical between set and clear so browsers actually drop them on logout.
+ *
+ * sameSite differs by environment because the deployment shape does: in
+ * production the frontend and this API sit on different domains, so every
+ * request is cross-site and 'strict' would stop the browser sending these
+ * cookies at all (you'd log in and immediately look logged out). 'none'
+ * requires secure:true, which the flag above already guarantees. Locally both
+ * run on localhost, so 'strict' holds and stays the tighter default.
+ */
 const authCookieOptions = {
   httpOnly: true,
   secure: env.isProduction,
-  sameSite: 'strict' as const,
+  sameSite: env.isProduction ? ('none' as const) : ('strict' as const),
 };
 
 const setAuthCookies = (res: Response, accessToken: string, refreshToken: string) => {

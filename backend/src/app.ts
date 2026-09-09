@@ -31,7 +31,7 @@ if (env.isProduction) {
 app.use(helmet({ contentSecurityPolicy: false }));
 app.use(apiLimiter);
 app.use(cors({
-  origin: env.frontendUrl,
+  origin: env.allowedOrigins,
   credentials: true, // Required for httpOnly cookies (access + refresh tokens)
 }));
 app.use(express.json({ limit: '100kb' }));

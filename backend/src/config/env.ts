@@ -41,7 +41,20 @@ export const env = {
   port: process.env.PORT || 5000,
   nodeEnv: process.env.NODE_ENV || 'development',
   isProduction: process.env.NODE_ENV === 'production',
-  frontendUrl: process.env.FRONTEND_URL || 'http://localhost:5173',
+  /**
+   * Origins allowed to call this API with credentials.
+   *
+   * Accepts a comma-separated list so one deployment can serve the local dev
+   * server and a hosted frontend at once. The deployed frontend is included by
+   * default because the hosting platform's dashboard is the only place
+   * FRONTEND_URL can be set, and a missing value silently falls back to
+   * localhost — which rejects the real site with an opaque CORS error.
+   * Setting FRONTEND_URL still overrides this entirely.
+   */
+  allowedOrigins: (process.env.FRONTEND_URL || 'http://localhost:5173,https://web3-platform-beta.vercel.app')
+    .split(',')
+    .map((origin) => origin.trim().replace(/\/$/, ''))
+    .filter(Boolean),
   jwtSecret,
   refreshSecret,
   adminEmail: process.env.ADMIN_EMAIL || 'admin@web3platform.com',

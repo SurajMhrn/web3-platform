@@ -15,6 +15,10 @@ services:
     startCommand: npm start
     healthCheckPath: /api/health
     envVars:
+      # Pinned: bcrypt ships prebuilt binaries per Node major, and a newer
+      # default would force a slow from-source build (or fail outright).
+      - key: NODE_VERSION
+        value: "22"
       - key: NODE_ENV
         value: production
       # Generated once by Render, never shown in this file or in git.

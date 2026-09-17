@@ -1,7 +1,13 @@
+jest.mock('../src/services/chainVerifier', () => ({
+  verifyTokenCreation: jest.fn().mockResolvedValue(undefined),
+  verifyTokenTransfer: jest.fn().mockResolvedValue(undefined),
+}));
+
 import request from 'supertest';
 import { ethers } from 'ethers';
 import app from '../src/app';
 import { resetDatabase } from './testDb';
+import { linkWallet } from './onchain';
 
 const VALID_TX_HASH = '0x' + '1'.repeat(64);
 const VALID_ADDRESS = ethers.Wallet.createRandom().address;
@@ -9,6 +15,7 @@ const VALID_ADDRESS = ethers.Wallet.createRandom().address;
 const registerAndLogin = async (email = 'alice@example.com') => {
   const agent = request.agent(app);
   await agent.post('/api/auth/register').send({ email, password: 'password123' });
+  await linkWallet(agent);
   return agent;
 };
 

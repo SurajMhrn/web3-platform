@@ -1,11 +1,18 @@
+jest.mock('../src/services/chainVerifier', () => ({
+  verifyTokenCreation: jest.fn().mockResolvedValue(undefined),
+  verifyTokenTransfer: jest.fn().mockResolvedValue(undefined),
+}));
+
 import request from 'supertest';
 import { ethers } from 'ethers';
 import app from '../src/app';
 import { resetDatabase } from './testDb';
+import { linkWallet } from './onchain';
 
 const registerAndLogin = async (email: string) => {
   const agent = request.agent(app);
   await agent.post('/api/auth/register').send({ email, password: 'password123' });
+  await linkWallet(agent);
   return agent;
 };
 

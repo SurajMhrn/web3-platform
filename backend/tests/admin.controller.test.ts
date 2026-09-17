@@ -1,7 +1,13 @@
+jest.mock('../src/services/chainVerifier', () => ({
+  verifyTokenCreation: jest.fn().mockResolvedValue(undefined),
+  verifyTokenTransfer: jest.fn().mockResolvedValue(undefined),
+}));
+
 import request from 'supertest';
 import { ethers } from 'ethers';
 import app from '../src/app';
 import { resetDatabase } from './testDb';
+import { linkWallet } from './onchain';
 import { env } from '../src/config/env';
 
 const ADMIN_CREDS = { email: env.adminEmail, password: env.adminPassword! };
@@ -17,6 +23,7 @@ const registerUser = async (email: string) => {
   const agent = request.agent(app);
   const res = await agent.post('/api/auth/register').send({ email, password: 'password123' });
   expect(res.status).toBe(201);
+  await linkWallet(agent);
   return { agent, id: res.body.user.id as string };
 };
 

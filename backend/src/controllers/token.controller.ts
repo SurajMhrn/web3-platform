@@ -10,7 +10,23 @@ import { createNotification } from '../models/notification.model';
 import { withTransaction } from '../config/db';
 import { asyncHandler } from '../utils/asyncHandler';
 import { parsePagination } from '../utils/pagination';
+import { AppError } from '../utils/AppError';
+import { getUserById } from '../models/user.model';
+import { verifyTokenCreation, verifyTokenTransfer } from '../services/chainVerifier';
 import type { AuthRequest } from '../middleware/auth.middleware';
+
+/**
+ * The wallet an on-chain claim must have come from. Verification is only
+ * meaningful against an identity the account has already proven it controls,
+ * which is what wallet linking establishes.
+ */
+const requireLinkedWallet = async (userId: string): Promise<string> => {
+  const user = await getUserById(userId);
+  if (!user?.wallet_address) {
+    throw new AppError(400, 'Link a wallet to your account before recording on-chain activity.');
+  }
+  return user.wallet_address;
+};
 
 /**
  * GET /api/tokens
@@ -37,6 +53,9 @@ export const getUserTokens = asyncHandler(async (req: AuthRequest, res: Response
 export const recordToken = asyncHandler(async (req: AuthRequest, res: Response) => {
   const userId = req.user!.id;
   const { name, symbol, initialSupply, contractAddress, txHash, chainId } = req.body;
+
+  const wallet = await requireLinkedWallet(userId);
+  await verifyTokenCreation({ txHash, chainId, creator: wallet, contractAddress, name, symbol });
 
   const token = await withTransaction(async () => {
     const created = await createToken(
@@ -80,6 +99,9 @@ export const recordToken = asyncHandler(async (req: AuthRequest, res: Response) 
 export const recordTokenTransfer = asyncHandler(async (req: AuthRequest, res: Response) => {
   const userId = req.user!.id;
   const { tokenName, tokenSymbol, contractAddress, toAddress, amount, txHash, chainId } = req.body;
+
+  const wallet = await requireLinkedWallet(userId);
+  await verifyTokenTransfer({ txHash, chainId, from: wallet, to: toAddress, contractAddress });
 
   const shortTo = `${toAddress.slice(0, 6)}...${toAddress.slice(-4)}`;
 

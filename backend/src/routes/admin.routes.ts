@@ -6,6 +6,7 @@ import { patchUserRoleSchema } from '../validation/schemas';
 import {
   getAdminStats,
   getAdminAnalytics,
+  getAdminOverview,
   getAdminUsers,
   patchUserRole,
   removeUser,
@@ -45,6 +46,29 @@ router.get('/stats', getAdminStats);
  *       403: { description: Not an admin }
  */
 router.get('/analytics', getAdminAnalytics);
+
+/**
+ * @openapi
+ * /admin/overview:
+ *   get:
+ *     summary: Stats, analytics and the first page of users in a single request
+ *     tags: [Admin]
+ *     security: [{ cookieAuth: [] }]
+ *     parameters:
+ *       - in: query
+ *         name: days
+ *         schema: { type: integer, default: 14, minimum: 1, maximum: 90 }
+ *       - in: query
+ *         name: limit
+ *         schema: { type: integer, default: 10, maximum: 100 }
+ *       - in: query
+ *         name: offset
+ *         schema: { type: integer, default: 0 }
+ *     responses:
+ *       200: { description: "{ stats, analytics, users } — the admin dashboard's initial payload" }
+ *       403: { description: Not an admin }
+ */
+router.get('/overview', getAdminOverview);
 
 /**
  * @openapi

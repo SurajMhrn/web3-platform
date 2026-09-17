@@ -124,10 +124,32 @@ export function AdminDashboardPage() {
     }
   }, []);
 
+  /**
+   * First paint comes from one request instead of three. Paging still calls
+   * fetchUsers, since only that slice changes; fetchStats/fetchAnalytics stay
+   * for refreshing a single panel after a role change or deletion.
+   */
+  const fetchOverview = useCallback(async () => {
+    try {
+      setLoadingStats(true);
+      setLoadingAnalytics(true);
+      setLoadingUsers(true);
+      const res = await apiClient.get(`/admin/overview?days=14&limit=${LIMIT}`);
+      setStats(res.data.stats);
+      setAnalytics(res.data.analytics);
+      setUsers(res.data.users.users);
+      setTotal(res.data.users.total);
+    } catch (err) {
+      toast.error(getErrorMessage(err, 'Failed to load the admin dashboard'));
+    } finally {
+      setLoadingStats(false);
+      setLoadingAnalytics(false);
+      setLoadingUsers(false);
+    }
+  }, []);
+
   useEffect(() => {
-    fetchStats();
-    fetchAnalytics();
-    fetchUsers(0);
+    fetchOverview();
   }, []);
 
   const handleRoleChange = async (userId: string, newRole: UserRole) => {
@@ -148,6 +170,9 @@ export function AdminDashboardPage() {
       setConfirmDelete(null);
       fetchUsers(offset);
       fetchStats();
+      // Deleting a user cascades to their tokens and transactions, so the
+      // charts and top-creators list are stale until they are refetched too.
+      fetchAnalytics();
     } catch (err) {
       toast.error(getErrorMessage(err, 'Failed to delete user'));
     }

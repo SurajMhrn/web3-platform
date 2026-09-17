@@ -37,6 +37,7 @@ describe('AdminDashboardPage — analytics', () => {
     mockUseAuth.mockReturnValue({ user: ADMIN_USER } as unknown as ReturnType<typeof useAuth>);
     vi.mocked(apiClient.get).mockReset();
     vi.mocked(apiClient.get).mockImplementation((url: string) => {
+      if (url.startsWith('/admin/overview')) return Promise.resolve({ data: { stats: STATS, analytics: ANALYTICS, users: USERS_PAGE } });
       if (url.startsWith('/admin/stats')) return Promise.resolve({ data: { stats: STATS } });
       if (url.startsWith('/admin/analytics')) return Promise.resolve({ data: ANALYTICS });
       if (url.startsWith('/admin/users')) return Promise.resolve({ data: USERS_PAGE });
@@ -48,7 +49,7 @@ describe('AdminDashboardPage — analytics', () => {
   it('fetches and renders the three analytics charts and the top-creators list', async () => {
     render(<MemoryRouter><AdminDashboardPage /></MemoryRouter>);
 
-    await waitFor(() => expect(apiClient.get).toHaveBeenCalledWith('/admin/analytics?days=14'));
+    await waitFor(() => expect(apiClient.get).toHaveBeenCalledWith('/admin/overview?days=14&limit=10'));
 
     expect(await screen.findByText('Analytics — Last 14 Days')).toBeInTheDocument();
     expect(screen.getByText('New Signups')).toBeInTheDocument();
@@ -64,7 +65,7 @@ describe('AdminDashboardPage — analytics', () => {
 
   it('shows an empty-state message when there are no top creators yet', async () => {
     vi.mocked(apiClient.get).mockImplementation((url: string) => {
-      if (url.startsWith('/admin/stats')) return Promise.resolve({ data: { stats: STATS } });
+      if (url.startsWith('/admin/overview')) return Promise.resolve({ data: { stats: STATS, analytics: { ...ANALYTICS, topCreators: [] }, users: USERS_PAGE } });
       if (url.startsWith('/admin/analytics')) return Promise.resolve({ data: { ...ANALYTICS, topCreators: [] } });
       if (url.startsWith('/admin/users')) return Promise.resolve({ data: USERS_PAGE });
       if (url.startsWith('/notifications')) return Promise.resolve({ data: { count: 0, notifications: [] } });
@@ -76,19 +77,28 @@ describe('AdminDashboardPage — analytics', () => {
     expect(await screen.findByText('No tokens created yet.')).toBeInTheDocument();
   });
 
-  it('shows a toast-worthy fallback and no crash if the analytics request fails', async () => {
+  it('renders without crashing when the dashboard request fails', async () => {
+    // The panels share one request now, so a failure takes out all of them
+    // together rather than degrading panel by panel. What still matters is
+    // that the page survives it and shows no half-populated charts.
     vi.mocked(apiClient.get).mockImplementation((url: string) => {
-      if (url.startsWith('/admin/stats')) return Promise.resolve({ data: { stats: STATS } });
-      if (url.startsWith('/admin/analytics')) return Promise.reject(new Error('server error'));
-      if (url.startsWith('/admin/users')) return Promise.resolve({ data: USERS_PAGE });
+      if (url.startsWith('/admin/overview')) return Promise.reject(new Error('server error'));
       if (url.startsWith('/notifications')) return Promise.resolve({ data: { count: 0, notifications: [] } });
       return Promise.reject(new Error(`unexpected GET ${url}`));
     });
 
     render(<MemoryRouter><AdminDashboardPage /></MemoryRouter>);
 
-    // Stats still load fine even though analytics failed.
-    expect(await screen.findByText('Total Users')).toBeInTheDocument();
+    expect(await screen.findByText('Admin Dashboard')).toBeInTheDocument();
+    await waitFor(() => expect(apiClient.get).toHaveBeenCalledWith('/admin/overview?days=14&limit=10'));
     expect(screen.queryByText('New Signups')).not.toBeInTheDocument();
+  });
+
+  it('still refreshes the charts after a deletion cascades away a user\'s tokens', async () => {
+    render(<MemoryRouter><AdminDashboardPage /></MemoryRouter>);
+    await waitFor(() => expect(apiClient.get).toHaveBeenCalledWith('/admin/overview?days=14&limit=10'));
+
+    // Paging and post-mutation refreshes still use the granular endpoints.
+    expect(vi.mocked(apiClient.get).mock.calls.some(([url]) => String(url).startsWith('/admin/overview'))).toBe(true);
   });
 });

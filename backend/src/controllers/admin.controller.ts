@@ -54,6 +54,44 @@ export const getAdminAnalytics = asyncHandler(async (req: AuthRequest, res: Resp
 });
 
 /**
+ * GET /api/admin/overview?days=14&limit=10
+ * Everything the admin dashboard needs on first paint, in one round trip:
+ * platform stats, the analytics series, and the first page of users.
+ *
+ * The page used to issue three requests that each re-authenticated and
+ * re-queried; the queries run concurrently here instead. Pagination still
+ * uses /admin/users, since only that slice changes when you page.
+ */
+export const getAdminOverview = asyncHandler(async (req: AuthRequest, res: Response) => {
+  const rawDays = parseInt(req.query.days as string, 10);
+  const days = Math.min(Math.max(Number.isFinite(rawDays) && rawDays > 0 ? rawDays : 14, 1), 90);
+  const { limit, offset } = parsePagination(req, { defaultLimit: 10, maxLimit: 100 });
+
+  const [totalUsers, counts, signups, tokensCreated, transactions, topCreators, users] =
+    await Promise.all([
+      getTotalUserCount(),
+      getUserRoleCounts(),
+      getCountsByDay('users', days),
+      getCountsByDay('tokens', days),
+      getCountsByDay('transactions', days),
+      getTopTokenCreators(5),
+      getAllUsers(limit, offset),
+    ]);
+
+  res.json({
+    stats: {
+      totalUsers,
+      totalAdmins: counts.admins,
+      totalModerators: counts.moderators,
+      walletLinked: counts.walletLinked,
+      regularUsers: counts.users,
+    },
+    analytics: { days, signups, tokensCreated, transactions, topCreators },
+    users: { users, total: totalUsers, limit, offset },
+  });
+});
+
+/**
  * GET /api/admin/users?limit=20&offset=0
  * Returns a paginated list of all users (admin only).
  */

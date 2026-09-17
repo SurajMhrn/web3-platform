@@ -105,6 +105,36 @@ export const getTotalUserCount = async (): Promise<number> => {
   return result.rows[0]?.count ?? 0;
 };
 
+export interface UserRoleCounts {
+  admins: number;
+  moderators: number;
+  users: number;
+  walletLinked: number;
+}
+
+/**
+ * Role and wallet-link totals, counted by the database rather than by fetching
+ * rows and counting them in the API process — which silently under-reported
+ * once the table grew past the page size being fetched.
+ */
+export const getUserRoleCounts = async (): Promise<UserRoleCounts> => {
+  const result = await pool.query(
+    `SELECT
+       COUNT(*) FILTER (WHERE role = 'admin')        AS admins,
+       COUNT(*) FILTER (WHERE role = 'moderator')    AS moderators,
+       COUNT(*) FILTER (WHERE role = 'user')         AS users,
+       COUNT(*) FILTER (WHERE wallet_address IS NOT NULL) AS wallet_linked
+     FROM users`
+  );
+  const row = result.rows[0] ?? {};
+  return {
+    admins: Number(row.admins ?? 0),
+    moderators: Number(row.moderators ?? 0),
+    users: Number(row.users ?? 0),
+    walletLinked: Number(row.wallet_linked ?? 0),
+  };
+};
+
 export const updateUserRole = async (id: string, role: UserRole): Promise<User> => {
   const result = await pool.query(
     'UPDATE users SET role = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ? RETURNING *',

@@ -93,7 +93,6 @@ export function DashboardPage() {
         chainId: chainId.toString(),
         username: user.username,
         email: user.email,
-        role: user.role,
       });
 
       setLastTxHash(txHash);

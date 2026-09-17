@@ -39,19 +39,34 @@ interface IUserRegistry {
         uint256 timestamp
     );
 
+    event UserRoleChanged(
+        address indexed userAddress,
+        string previousRole,
+        string newRole,
+        uint256 timestamp
+    );
+
     // ─── Write Functions ─────────────────────────────────────────────────────
 
     /**
      * @notice Register the calling wallet as a platform user.
+     * @dev Registration always assigns the default "user" role. A caller
+     *      cannot choose its own role — only the contract owner can grant a
+     *      privileged one, via setUserRole.
      * @param _username Non-empty display name.
      * @param _email    Non-empty off-chain email identifier.
-     * @param _role     Platform role string (e.g. "user", "admin").
      */
     function registerUser(
         string calldata _username,
-        string calldata _email,
-        string calldata _role
+        string calldata _email
     ) external;
+
+    /**
+     * @notice Set a registered user's platform role. Owner-only.
+     * @param _userAddress The wallet address whose role is changing.
+     * @param _role        One of "user", "moderator", "admin".
+     */
+    function setUserRole(address _userAddress, string calldata _role) external;
 
     /**
      * @notice Update the calling user's username and email.

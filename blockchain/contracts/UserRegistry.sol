@@ -13,6 +13,15 @@ import "./interfaces/IUserRegistry.sol";
  * @dev Inherits Ownable (admin functions) and Pausable (emergency stop).
  */
 contract UserRegistry is IUserRegistry, Ownable, Pausable {
+    // ─── Roles ────────────────────────────────────────────────────────────────
+
+    string public constant ROLE_USER = "user";
+    string public constant ROLE_MODERATOR = "moderator";
+    string public constant ROLE_ADMIN = "admin";
+
+    /// @dev Every self-registration starts here; only the owner can change it.
+    string public constant DEFAULT_ROLE = ROLE_USER;
+
     // ─── State ────────────────────────────────────────────────────────────────
 
     /// @dev Mapping from wallet address to user info struct
@@ -39,24 +48,26 @@ contract UserRegistry is IUserRegistry, Ownable, Pausable {
 
     /**
      * @notice Register the calling wallet as a platform user.
+     * @dev Self-registration always assigns DEFAULT_ROLE. The role used to be a
+     *      caller-supplied string, which meant any wallet could register itself
+     *      as "admin" and any off-chain system trusting this registry would
+     *      believe it. Granting a privileged role is now owner-only —
+     *      see setUserRole.
      * @param _username Non-empty display name.
      * @param _email    Off-chain email identifier (stored on-chain for auditability).
-     * @param _role     Platform role string (e.g. "user", "admin").
      */
     function registerUser(
         string calldata _username,
-        string calldata _email,
-        string calldata _role
+        string calldata _email
     ) external override whenNotPaused {
         require(!_users[msg.sender].isRegistered, "UserRegistry: already registered");
         require(bytes(_username).length > 0, "UserRegistry: username cannot be empty");
         require(bytes(_email).length > 0,    "UserRegistry: email cannot be empty");
-        require(bytes(_role).length > 0,     "UserRegistry: role cannot be empty");
 
         _users[msg.sender] = UserInfo({
             username:      _username,
             email:         _email,
-            role:          _role,
+            role:          DEFAULT_ROLE,
             registeredAt:  block.timestamp,
             updatedAt:     block.timestamp,
             isRegistered:  true,
@@ -65,7 +76,39 @@ contract UserRegistry is IUserRegistry, Ownable, Pausable {
 
         _registeredAddresses.push(msg.sender);
 
-        emit UserRegistered(msg.sender, _username, _role, block.timestamp);
+        emit UserRegistered(msg.sender, _username, DEFAULT_ROLE, block.timestamp);
+    }
+
+    /**
+     * @notice Set a registered user's platform role. Owner-only.
+     * @dev Restricted to the known role set so a typo can't mint an
+     *      unrecognized role that off-chain checks would silently treat as
+     *      unprivileged — or worse, fail open on.
+     * @param _userAddress The wallet address whose role is changing.
+     * @param _role        One of "user", "moderator", "admin".
+     */
+    function setUserRole(address _userAddress, string calldata _role)
+        external
+        override
+        onlyOwner
+        onlyRegistered(_userAddress)
+    {
+        require(_isValidRole(_role), "UserRegistry: unknown role");
+
+        string memory previousRole = _users[_userAddress].role;
+        _users[_userAddress].role = _role;
+        _users[_userAddress].updatedAt = block.timestamp;
+
+        emit UserRoleChanged(_userAddress, previousRole, _role, block.timestamp);
+    }
+
+    /// @dev Roles are compared by hash because Solidity cannot compare strings directly.
+    function _isValidRole(string calldata _role) private pure returns (bool) {
+        bytes32 roleHash = keccak256(bytes(_role));
+        return
+            roleHash == keccak256(bytes(ROLE_USER)) ||
+            roleHash == keccak256(bytes(ROLE_MODERATOR)) ||
+            roleHash == keccak256(bytes(ROLE_ADMIN));
     }
 
     /**

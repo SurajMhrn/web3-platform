@@ -2,6 +2,7 @@ import { Response } from 'express';
 import {
   getAllUsers,
   getTotalUserCount,
+  getUserRoleCounts,
   updateUserRole,
   deleteUserById,
   getUserById,
@@ -20,19 +21,15 @@ import type { AuthRequest } from '../middleware/auth.middleware';
  * Returns platform-level statistics (admin only).
  */
 export const getAdminStats = asyncHandler(async (req: AuthRequest, res: Response) => {
-  const totalUsers = await getTotalUserCount();
-  const allUsers = await getAllUsers(1000, 0);
-  const totalAdmins = allUsers.filter(u => u.role === 'admin').length;
-  const totalModerators = allUsers.filter(u => u.role === 'moderator').length;
-  const walletLinked = allUsers.filter(u => !!u.wallet_address).length;
+  const [totalUsers, counts] = await Promise.all([getTotalUserCount(), getUserRoleCounts()]);
 
   res.json({
     stats: {
       totalUsers,
-      totalAdmins,
-      totalModerators,
-      walletLinked,
-      regularUsers: totalUsers - totalAdmins - totalModerators,
+      totalAdmins: counts.admins,
+      totalModerators: counts.moderators,
+      walletLinked: counts.walletLinked,
+      regularUsers: counts.users,
     }
   });
 });

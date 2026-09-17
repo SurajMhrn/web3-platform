@@ -66,7 +66,20 @@ const DB_FILE = process.env.SQLITE_FILE || path.join(__dirname, '../../web3_db.s
 
 const getDb = () => {
   if (!dbPromise) {
-    dbPromise = open({ filename: DB_FILE, driver: sqlite3.Database });
+    dbPromise = open({ filename: DB_FILE, driver: sqlite3.Database }).then(async (db) => {
+      // SQLite serves this process through a single connection, so two
+      // requests arriving together contend for the same file. The rollback
+      // journal's default is to fail the loser immediately with SQLITE_BUSY;
+      // WAL lets readers proceed during a write, and busy_timeout makes a
+      // blocked write wait its turn instead of erroring out. Skipped for
+      // :memory: databases, which have no file to journal.
+      if (DB_FILE !== ':memory:') {
+        await db.exec('PRAGMA journal_mode = WAL;');
+      }
+      await db.exec('PRAGMA busy_timeout = 5000;');
+      await db.exec('PRAGMA foreign_keys = ON;');
+      return db;
+    });
   }
   return dbPromise;
 };

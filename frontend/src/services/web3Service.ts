@@ -113,19 +113,22 @@ export interface RegisterOnChainParams {
   chainId: string;
   username: string;
   email: string;
-  role: string;
 }
 
 /**
  * Calls UserRegistry.registerUser() on-chain.
  * Returns the transaction hash on success, or throws on failure.
+ *
+ * Deliberately takes no role: the contract assigns every self-registration the
+ * default "user" role, and only its owner can grant a privileged one. Passing
+ * one from here would have been a request the chain ignores.
  */
 export async function registerUserOnChain(
   params: RegisterOnChainParams
 ): Promise<string> {
-  const { signer, chainId, username, email, role } = params;
+  const { signer, chainId, username, email } = params;
   const contract = getUserRegistryContract(signer, chainId);
-  const tx = await contract.registerUser(username, email, role);
+  const tx = await contract.registerUser(username, email);
   const receipt = await tx.wait();
   return receipt.hash;
 }

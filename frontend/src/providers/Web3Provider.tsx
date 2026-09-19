@@ -40,10 +40,18 @@ const localhost: AppKitNetwork = {
  *  - localhost (chain 31337) — local Hardhat node, contracts deployed here
  *  - sepolia   (chain 11155111) — public testnet (no contracts deployed yet)
  */
+/**
+ * A deployed build defaults to Sepolia, a development build to the local node.
+ * Both remain selectable either way — but a visitor to the hosted site cannot
+ * reach a developer's machine, so defaulting them to localhost offered a
+ * wallet connection that could never complete.
+ */
+const defaultNetwork = import.meta.env.PROD ? sepolia : localhost;
+
 createAppKit({
   adapters: [new EthersAdapter()],
   networks: [localhost, sepolia],
-  defaultNetwork: localhost,
+  defaultNetwork,
   metadata,
   projectId,
   features: {

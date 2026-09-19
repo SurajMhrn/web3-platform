@@ -16,10 +16,19 @@ import { AppError } from '../utils/AppError';
  * is the one linked to the calling account.
  */
 
-/** Local development nodes, so a normal setup needs no configuration. */
+/**
+ * Chains that work with no configuration: the local development nodes, and a
+ * keyless public endpoint for Sepolia.
+ *
+ * The public endpoint is deliberate — the alternative was committing an
+ * API-keyed provider URL to a public repository. It is rate-limited and
+ * best-effort, so a deployment carrying real traffic should set
+ * RPC_URL_11155111 to a dedicated provider, which overrides this.
+ */
 const DEFAULT_RPC_URLS: Record<string, string> = {
   '31337': 'http://127.0.0.1:8545',
   '1337': 'http://127.0.0.1:8545',
+  '11155111': 'https://ethereum-sepolia-rpc.publicnode.com',
 };
 
 const TOKEN_CREATED_ABI = [

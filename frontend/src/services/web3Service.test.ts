@@ -18,10 +18,25 @@ describe('getDeploymentForChain', () => {
     expect(() => getDeploymentForChain('999')).toThrow(/Unsupported chain ID: 999/);
   });
 
-  it('throws when a supported chain has no recorded deployment', () => {
-    // Sepolia is a recognized network name but this repo's deployments.json
-    // only has a "localhost" entry — this must fail loudly, not silently.
-    expect(() => getDeploymentForChain('11155111')).toThrow(/No deployment found for sepolia/);
+  it('resolves the Sepolia deployment for chain 11155111', () => {
+    // Sepolia used to have no entry, and this test asserted the failure was
+    // loud. The contracts are deployed there now, so it asserts the addresses
+    // are actually present instead.
+    const deployment = getDeploymentForChain('11155111');
+    expect(deployment.contracts.PlatformRegistry.address).toMatch(/^0x[0-9a-fA-F]{40}$/);
+    expect(deployment.contracts.UserRegistry.address).toMatch(/^0x[0-9a-fA-F]{40}$/);
+    expect(deployment.contracts.TokenFactory.address).toMatch(/^0x[0-9a-fA-F]{40}$/);
+  });
+
+  it('exposes the post-fix UserRegistry ABI on every deployed chain', () => {
+    // Guards the privilege-escalation fix: a chain still carrying the old
+    // three-argument registerUser would let callers name their own role.
+    for (const chainId of ['31337', '11155111']) {
+      const abi = getDeploymentForChain(chainId).contracts.UserRegistry.abi;
+      const registerUser = abi.find((entry: { name?: string }) => entry.name === 'registerUser');
+      expect(registerUser.inputs).toHaveLength(2);
+      expect(abi.some((entry: { name?: string }) => entry.name === 'setUserRole')).toBe(true);
+    }
   });
 });
 

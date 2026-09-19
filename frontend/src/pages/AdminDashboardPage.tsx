@@ -84,6 +84,8 @@ export function AdminDashboardPage() {
   const [loadingUsers, setLoadingUsers] = useState(true);
   const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
   const [search, setSearch] = useState('');
+  /** Server clamps this to 1–90; these are the offered steps. */
+  const [rangeDays, setRangeDays] = useState(14);
 
   const LIMIT = 10;
 
@@ -99,10 +101,10 @@ export function AdminDashboardPage() {
     }
   }, []);
 
-  const fetchAnalytics = useCallback(async () => {
+  const fetchAnalytics = useCallback(async (days: number = rangeDays) => {
     try {
       setLoadingAnalytics(true);
-      const res = await apiClient.get('/admin/analytics?days=14');
+      const res = await apiClient.get(`/admin/analytics?days=${days}`);
       setAnalytics(res.data);
     } catch (err) {
       toast.error(getErrorMessage(err, 'Failed to load analytics'));
@@ -134,7 +136,7 @@ export function AdminDashboardPage() {
       setLoadingStats(true);
       setLoadingAnalytics(true);
       setLoadingUsers(true);
-      const res = await apiClient.get(`/admin/overview?days=14&limit=${LIMIT}`);
+      const res = await apiClient.get(`/admin/overview?days=${rangeDays}&limit=${LIMIT}`);
       setStats(res.data.stats);
       setAnalytics(res.data.analytics);
       setUsers(res.data.users.users);
@@ -228,7 +230,34 @@ export function AdminDashboardPage() {
         {/* Basic Analytics */}
         <section className="admin-table-section">
           <div className="admin-table-header">
-            <h2 className="admin-section-title">Analytics — Last {analytics?.days ?? 14} Days</h2>
+            <h2 className="admin-section-title">Analytics — Last {analytics?.days ?? rangeDays} Days</h2>
+            {/* Range control sits in one row above the charts it drives. */}
+            <div role="group" aria-label="Time range" style={{ display: 'flex', gap: '0.35rem' }}>
+              {[7, 14, 30, 90].map((days) => {
+                const selected = rangeDays === days;
+                return (
+                  <button
+                    key={days}
+                    type="button"
+                    aria-pressed={selected}
+                    disabled={loadingAnalytics}
+                    onClick={() => { setRangeDays(days); fetchAnalytics(days); }}
+                    style={{
+                      padding: '0.25rem 0.6rem',
+                      borderRadius: '999px',
+                      fontSize: '0.75rem',
+                      fontWeight: 600,
+                      cursor: loadingAnalytics ? 'not-allowed' : 'pointer',
+                      color: selected ? 'var(--text-color)' : 'var(--text-muted)',
+                      background: selected ? 'var(--surface-hover)' : 'transparent',
+                      border: `1px solid ${selected ? 'var(--border-strong)' : 'var(--border-soft)'}`,
+                    }}
+                  >
+                    {days}d
+                  </button>
+                );
+              })}
+            </div>
           </div>
 
           {loadingAnalytics ? (
@@ -240,15 +269,15 @@ export function AdminDashboardPage() {
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '1.5rem' }}>
               <div className="admin-stat-card" style={{ display: 'block', padding: '1.25rem' }}>
                 <p className="admin-stat-label" style={{ marginBottom: '0.75rem' }}>New Signups</p>
-                <MiniBarChart data={buildDaySeries(analytics.signups, analytics.days)} color="#d41317" />
+                <MiniBarChart data={buildDaySeries(analytics.signups, analytics.days)} color="var(--chart-signups)" seriesName="New signups" />
               </div>
               <div className="admin-stat-card" style={{ display: 'block', padding: '1.25rem' }}>
                 <p className="admin-stat-label" style={{ marginBottom: '0.75rem' }}>Tokens Created</p>
-                <MiniBarChart data={buildDaySeries(analytics.tokensCreated, analytics.days)} color="#34d399" />
+                <MiniBarChart data={buildDaySeries(analytics.tokensCreated, analytics.days)} color="var(--chart-tokens)" seriesName="Tokens created" />
               </div>
               <div className="admin-stat-card" style={{ display: 'block', padding: '1.25rem' }}>
                 <p className="admin-stat-label" style={{ marginBottom: '0.75rem' }}>Transactions</p>
-                <MiniBarChart data={buildDaySeries(analytics.transactions, analytics.days)} color="#fbbf24" />
+                <MiniBarChart data={buildDaySeries(analytics.transactions, analytics.days)} color="var(--chart-transactions)" seriesName="Transactions" />
               </div>
               <div className="admin-stat-card" style={{ display: 'block', padding: '1.25rem' }}>
                 <p className="admin-stat-label" style={{ marginBottom: '0.75rem' }}>Top Token Creators</p>
